@@ -8,19 +8,21 @@ find_package(ZLIB)
 if(ZLIB_FOUND)
   hpx_info("apex" "Building APEX with ZLIB support.")
 
-  # Add an imported target
-  add_library(zlib INTERFACE IMPORTED)
-  set_property(TARGET zlib PROPERTY
-    INTERFACE_INCLUDE_DIRECTORIES ${ZLIB_INCLUDE_DIR})
-
-  # If supported, avoid issues with link-time keywords, such as:
-  # <Property INTERFACE_LINK_LIBRARIES may not contain link-type keyword
-  # "optimized".>
-  if(CMAKE_VERSION VERSION_LESS 3.11)
-    set_property(TARGET zlib PROPERTY
-      INTERFACE_LINK_LIBRARIES ${ZLIB_LIBRARIES})
-  else()
-    target_link_libraries(zlib INTERFACE ${ZLIB_LIBRARIES})
+  if(NOT TARGET ZLIB::ZLIB)
+    # Add an imported target
+    add_library(ZLIB::ZLIB INTERFACE IMPORTED)
+    set_property(TARGET ZLIB::ZLIB PROPERTY
+      INTERFACE_INCLUDE_DIRECTORIES ${ZLIB_INCLUDE_DIR})
+    
+    # If supported, avoid issues with link-time keywords, such as:
+    # <Property INTERFACE_LINK_LIBRARIES may not contain link-type keyword
+    # "optimized".>
+    if(CMAKE_VERSION VERSION_LESS 3.11)
+      set_property(TARGET ZLIB::ZLIB PROPERTY
+        INTERFACE_LINK_LIBRARIES ${ZLIB_LIBRARIES})
+    else()
+      target_link_libraries(ZLIB::ZLIB INTERFACE ${ZLIB_LIBRARIES})
+    endif()
   endif()
 
   set(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_RPATH} ${ZLIB_LIBRARY_DIR})
@@ -28,6 +30,6 @@ if(ZLIB_FOUND)
   message(INFO " Using zlib: ${ZLIB_INCLUDE_DIR}")
   message(INFO " Using zlib: ${ZLIB_LIBRARY_DIR} ${ZLIB_LIBRARIES}")
 
-  list(APPEND _apex_imported_targets zlib)
+  list(APPEND _apex_imported_targets ZLIB::ZLIB)
 
 endif()

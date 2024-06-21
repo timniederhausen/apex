@@ -23,12 +23,12 @@ find_path(
   NAMES rapidjson
   PATHS ${APEX_SOURCE_DIR}/rapidjson/include)
 
-add_library(rapidjson INTERFACE IMPORTED)
+add_library(RapidJSON::RapidJSON INTERFACE IMPORTED)
 if(RAPIDJSON_INCLUDE_DIR)
   message(INFO " Found rapidjson at ${RAPIDJSON_INCLUDE_DIR}")
-  set_property(TARGET rapidjson PROPERTY
-    INTERFACE_INCLUDE_DIRECTORIES ${RAPIDJSON_INCLUDE_DIR})
-  list(APPEND _apex_imported_targets rapidjson)
+  set_property(TARGET RapidJSON::RapidJSON PROPERTY
+    INTERFACE_INCLUDE_DIRECTORIES "${RAPIDJSON_INCLUDE_DIR}")
+  list(APPEND _apex_imported_targets RapidJSON::RapidJSON)
 else()
   message(FATAL_ERROR " rapidjson not found. This should have been checked \
     out automatically. " "Try manually check out \
