@@ -15,6 +15,7 @@
 #include <type_traits>
 #include <vector>
 #include <zlib.h>
+#include <cstdint>
 
 namespace apex { namespace io {
 
