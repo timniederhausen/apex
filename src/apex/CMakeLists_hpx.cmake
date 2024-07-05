@@ -431,12 +431,44 @@ target_include_directories(apex PUBLIC
 # To have the compile options and definitions
 target_link_libraries(apex PRIVATE apex_flags)
 
+function(print_target_properties target)
+    if(NOT TARGET ${target})
+      hpx_info(STATUS "There is no target named '${target}'")
+      return()
+    endif()
+
+    foreach(property ${CMAKE_PROPERTY_LIST})
+        string(REPLACE "<CONFIG>" "DEBUG" property ${property})
+
+        get_property(was_set TARGET ${target} PROPERTY ${property} SET)
+        if(was_set)
+            get_target_property(value ${target} ${property})
+            hpx_info("${target} ${property} = ${value}")
+        endif()
+    endforeach()
+endfunction()
+
 # Link to all imported targets
 hpx_info("apex" "Will build APEX with imported targets:")
 foreach(lib IN LISTS _apex_imported_targets)
   if (TARGET "${lib}")
     hpx_info("apex" "    ${lib}")
-    target_link_libraries(apex PRIVATE ${lib})
+    # XXX: This does not work for configurations where HPX ends up being built statically,
+    # as we end up with linker commandlines referencing those (at this point) non-existent libraries.
+    # target_link_libraries(apex PRIVATE ${lib})
+    print_target_properties(${lib})
+
+    get_property(was_set TARGET ${lib} PROPERTY INTERFACE_INCLUDE_DIRECTORIES SET)
+    if (was_set)
+      get_target_property(lib_includes ${lib} INTERFACE_INCLUDE_DIRECTORIES)
+      target_include_directories(apex PRIVATE ${lib_includes})
+    endif ()
+
+    get_property(was_set TARGET ${lib} PROPERTY INTERFACE_LINK_LIBRARIES SET)
+    if (was_set)
+      get_target_property(lib_libs ${lib} INTERFACE_LINK_LIBRARIES)
+      target_link_libraries(apex PRIVATE ${lib_libs})
+    endif ()
   endif()
 endforeach()
 
